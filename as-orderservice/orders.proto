@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package ecommerce;
+
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+import "domain.proto";
+
+message Order {
+    string userID = 1 [(akkaserverless.field).entity_key = true];
+    string orderID = 2;
+    string orderTotal = 3;
+    string orderStatus = 4;
+    repeated OrderItem items = 5;
+}
+
+message OrderItem {
+    string productID = 1;
+    int32 quantity = 2;
+    float price = 3;
+}
+
+
+message GetOrder {
+    string userID = 1 [(akkaserverless.field).entity_key = true];
+    string orderID = 2;
+}
+
+service OrderBackendService {
+    rpc AddOrder (Order) returns (Order) {
+        option (google.api.http) = {
+            post: "/order/{userID}",
+            body: "*"
+        };
+    }
+}
+
+service OrderFrontendService {
+    rpc ProcessOrderAdded (ecommerce.persistence.Order) returns (ecommerce.persistence.Order) {
+        option (akkaserverless.method).eventing.in = {
+            value_entity: "orders"
+        };
+        option (akkaserverless.method).view.update = {
+            table: "orders"
+        };
+    }
+
+    rpc GetOrderDetails (GetOrder) returns (ecommerce.persistence.Order) {
+        option (akkaserverless.method).view.query = {
+            query: "SELECT * FROM orders WHERE userID = :userID AND orderID = :orderID"
+        };
+        option (google.api.http) = {
+            get: "/order/{userID}/{orderID}",
+        };
+    }
+}

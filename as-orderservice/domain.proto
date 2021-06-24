@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package ecommerce.persistence;
+
+import "akkaserverless/annotations.proto";
+
+message Order {
+    string userID = 1;
+    string orderID = 2;
+    string orderTotal = 3;
+    string orderPoints = 4;
+    repeated OrderItem items = 5;
+}
+
+message OrderItem {
+    string productID = 1;
+    int32 quantity = 2;
+    float price = 3;
+}

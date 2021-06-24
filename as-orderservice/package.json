@@ -1,0 +1,32 @@
+{
+    "name": "orders",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "retgits",
+    "license": "Apache-2.0",
+    "type": "module",
+    "dependencies": {
+        "@grpc/proto-loader": "^0.5.5",
+        "@lightbend/akkaserverless-javascript-sdk": "^0.7.0-beta.11",
+        "google-protobuf": "^3.14.0",
+        "grpc": "^1.24.4"
+    },
+    "devDependencies": {
+        "chai": "^4.3.4",
+        "mocha": "^8.2.1"
+    },
+    "scripts": {
+        "test": "mocha ./test/*.test.js",
+        "pretest": "compile-descriptor ./orders.proto",
+        "build": "compile-descriptor ./orders.proto",
+        "start": "node index.js",
+        "container:build": "docker buildx build --platform linux/amd64 . -t as-orderservice:$npm_package_version",
+        "container:push": "docker push as-orderservice:$npm_package_version",
+        "devmode:network:create": "docker network create -d bridge akkasls",
+        "devmode:network:destroy": "docker network rm akkasls",
+        "devmode:proxy:start": "docker run --rm -it --name proxy --network akkasls -p 9000:9000 --env USER_FUNCTION_HOST=userfunction gcr.io/akkaserverless-public/akkaserverless-proxy:0.7.0-beta.11 -Dconfig.resource=dev-mode.conf -Dcloudstate.proxy.protocol-compatibility-check=false",
+        "devmode:proxy:stop": "docker stop proxy && docker rm proxy",
+        "devmode:container:start": "docker run --rm -it --name userfunction --hostname userfunction --network akkasls as-orderservice:$npm_package_version",
+        "devmode:container:stop": "docker stop userfunction && docker rm userfunction"
+    }
+}
