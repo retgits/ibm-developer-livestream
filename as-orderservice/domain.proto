@@ -2,14 +2,13 @@ syntax = "proto3";
 
 package ecommerce.persistence;
 
-import "akkaserverless/annotations.proto";
-
 message Order {
     string userID = 1;
     string orderID = 2;
     string orderTotal = 3;
-    string orderPoints = 4;
-    repeated OrderItem items = 5;
+    string customerStatus = 4;
+    string rewardsPoints = 5;
+    repeated OrderItem items = 6;
 }
 
 message OrderItem {
